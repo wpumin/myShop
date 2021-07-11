@@ -18,7 +18,7 @@ exports.index = async (req, res, next) => {
       return {
         _id: branch._id,
         name: branch.name,
-        photo: `${config.DOMAIN}/images/${branch.photo}`,
+        photo: branch.photo,
         location: branch.location,
       };
     });
@@ -109,7 +109,7 @@ async function saveImageToDisk(baseImage) {
   let image = decodeBase64Image(baseImage);
   await writeFileAsync(uploadPath + filename, image.data, "base64");
 
-  return filename;
+  return config.DOMAIN + "images/" + filename;
 }
 
 function decodeBase64Image(base64Str) {

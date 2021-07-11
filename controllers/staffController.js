@@ -12,12 +12,23 @@ const Staff = require("../models/staff");
 // get all staff start //
 exports.index = async (req, res, next) => {
   try {
-    const staff = await Staff.find()
-      .sort({ salary: 1 })
-      .select("name photo age salary net_salary role");
+    const staffs = await Staff.find().sort({ salary: 1 });
+
+    const staffWithPhotoDomain = await staffs.map((branch, index) => {
+      return {
+        _id: branch._id,
+        name: branch.name,
+        photo: branch.photo,
+        age: branch.age,
+        salary: branch.salary,
+        net_salary: branch.net_salary,
+        role: branch.role,
+        branch: branch.branch,
+      };
+    });
 
     res.status(200).json({
-      staff: staff,
+      staff: staffWithPhotoDomain,
     });
   } catch (error) {
     next(error);
@@ -67,7 +78,7 @@ async function saveImageToDisk(baseImage) {
   let image = decodeBase64Image(baseImage);
   await writeFileAsync(uploadPath + filename, image.data, "base64");
 
-  return filename;
+  return config.DOMAIN + "images/" + filename;
 }
 
 function decodeBase64Image(base64Str) {

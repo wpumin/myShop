@@ -10,10 +10,23 @@ const Goods = require("../models/goods");
 // get all goods start //
 exports.index = async (req, res, next) => {
   try {
-    const goods = await Goods.find().select("name photo price stock unit");
+    const goods = await Goods.find().sort({ _id: 1 });
+
+    const goodsWithPhotoDomain = await goods.map((branch, index) => {
+      return {
+        _id: branch._id,
+        name: branch.name,
+        photo: branch.photo,
+        price: branch.price,
+        net_price: branch.net_price,
+        stock: branch.stock,
+        unit: branch.unit,
+        branch: branch.branch,
+      };
+    });
 
     res.status(200).json({
-      goods: goods,
+      goods: goodsWithPhotoDomain,
     });
   } catch (error) {
     next(error);
@@ -63,7 +76,7 @@ async function saveImageToDisk(baseImage) {
   let image = decodeBase64Image(baseImage);
   await writeFileAsync(uploadPath + filename, image.data, "base64");
 
-  return filename;
+  return config.DOMAIN + "images/" + filename;
 }
 
 function decodeBase64Image(base64Str) {
